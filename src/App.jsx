@@ -73,10 +73,7 @@ export default function App() {
     <div style={{ minHeight: '100vh', background: `linear-gradient(135deg, ${C.navy}, ${C.navyDeep})`, fontFamily: FB, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ textAlign: 'center', marginBottom: 44, maxWidth: 640 }}>
         <div style={{ display: 'inline-flex', alignItems: 'center', gap: 11, marginBottom: 24 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 11, background: C.emerald, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Zap size={24} color={C.navy} strokeWidth={2.5} />
-          </div>
-          <span style={{ fontSize: 30, fontWeight: 800, color: '#fff', letterSpacing: -0.5 }}>BPOx</span>
+          <span style={{ fontSize: 38, fontWeight: 800, letterSpacing: -1, lineHeight: 1 }}><span style={{ color: '#fff' }}>bpo</span><span style={{ color: C.emerald }}>X</span></span>
         </div>
         <h1 style={{ fontFamily: FD, fontSize: 34, fontWeight: 800, color: '#fff', lineHeight: 1.15, marginBottom: 14 }}>
           Conheça o BPOx <span style={{ color: C.emerald }}>por dentro</span>

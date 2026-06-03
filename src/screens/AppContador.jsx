@@ -44,6 +44,9 @@ const initialTarefas = {
     { id: 't7', nome: 'Relatório mensal', emp: 'Auto Peças Veloz', resp: 'Pedro', prazo: 'Ontem', prio: 'media', desc: 'Gerar e enviar o relatório financeiro mensal ao cliente.', horasEst: 1, horasFeitas: 1.1, checklist: [] },
     { id: 't8', nome: 'Conciliação cartões', emp: 'Padaria Estrela', resp: 'Maria', prazo: 'Ontem', prio: 'baixa', desc: 'Conciliar as vendas em cartão com o recebido.', horasEst: 1, horasFeitas: 0.75, checklist: [] },
   ],
+  parado: [
+    { id: 't9', nome: 'Fechar folha de pagamento', emp: 'Restaurante Sabor', resp: 'Maria', prazo: '5 dias', prio: 'media', desc: 'Travada: aguardando o cliente enviar as horas extras do mês.', horasEst: 1.5, horasFeitas: 0.5, checklist: [{ t: 'Receber horas do cliente', d: false }, { t: 'Calcular folha', d: false }] },
+  ],
 };
 
 const CAL_EVENTS = { 3: ['done'], 5: ['done', 'done'], 9: ['future'], 10: ['today', 'today', 'today'], 12: ['late'], 15: ['soon', 'soon'], 17: ['future'], 18: ['done'], 20: ['soon'], 22: ['future', 'future'], 25: ['future'], 28: ['future'], 30: ['future', 'future'] };
@@ -101,7 +104,7 @@ function DesktopApp() {
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(null), 2500); };
 
   const colOf = (taskId) => {
-    for (const col of ['pendente', 'andamento', 'concluida']) {
+    for (const col of ['pendente', 'andamento', 'parado', 'concluida']) {
       if (tarefas[col].some(t => t.id === taskId)) return col;
     }
     return null;
@@ -131,6 +134,10 @@ function DesktopApp() {
     });
   };
 
+  // Parar (esperando cliente) e retomar — a coluna "Parado" do BPOx
+  const pauseTask = (taskId) => { moveTask(taskId, 'parado'); showToast('Tarefa parada — aguardando o cliente ⏸'); };
+  const resumeTask = (taskId) => { moveTask(taskId, 'andamento'); showToast('Tarefa retomada ✓'); };
+
   // Atualiza campos de uma tarefa (responsável, prazo, prioridade, horas, checklist...)
   const updateTask = (taskId, patch) => {
     const col = colOf(taskId);
@@ -149,7 +156,7 @@ function DesktopApp() {
     { id: 'empresas', label: 'Empresas', icon: Building2 },
     { id: 'tarefas', label: 'Tarefas', icon: CheckSquare },
     { id: 'calendario', label: 'Calendário', icon: CalendarIcon },
-    { id: 'relatorios', label: 'Produtividade', icon: BarChart3 },
+    { id: 'relatorios', label: 'Relatórios', icon: BarChart3 },
     { id: 'planos', label: 'Planos', icon: Star },
   ];
 
@@ -158,12 +165,9 @@ function DesktopApp() {
       {/* Sidebar */}
       <aside style={{ width: 220, background: C.navy, padding: '22px 0', flexShrink: 0 }}>
         <div style={{ padding: '0 22px 24px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 34, height: 34, borderRadius: 9, background: C.emerald, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Zap size={19} color={C.navy} strokeWidth={2.5} />
-          </div>
           <div>
-            <div style={{ color: C.white, fontWeight: 800, fontSize: 17 }}>BPOx</div>
-            <div style={{ color: C.emerald, fontSize: 9, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 700 }}>BPO Financeiro</div>
+            <div style={{ fontWeight: 800, fontSize: 22, letterSpacing: -0.5, lineHeight: 1 }}><span style={{ color: C.white }}>bpo</span><span style={{ color: C.emerald }}>X</span></div>
+            <div style={{ color: C.emerald, fontSize: 9, letterSpacing: 1.5, textTransform: 'uppercase', fontWeight: 700, marginTop: 2 }}>BPO Financeiro</div>
           </div>
         </div>
         <nav>
@@ -210,7 +214,7 @@ function DesktopApp() {
             : <>
               {screen === 'hoje' && <Hoje onComplete={completeTask} tarefas={tarefas} />}
               {screen === 'empresas' && <Empresas onSelect={setSelEmp} />}
-              {screen === 'tarefas' && <Tarefas tarefas={tarefas} onComplete={completeTask} onOpen={abrirFicha} />}
+              {screen === 'tarefas' && <Tarefas tarefas={tarefas} onComplete={completeTask} onOpen={abrirFicha} onPause={pauseTask} onResume={resumeTask} />}
               {screen === 'calendario' && <Calendario />}
               {screen === 'relatorios' && <Produtividade />}
               {screen === 'planos' && <Planos />}
@@ -396,16 +400,17 @@ function FichaEmpresa({ emp, onBack }) {
   );
 }
 
-function Tarefas({ tarefas, onComplete, onOpen }) {
+function Tarefas({ tarefas, onComplete, onOpen, onPause, onResume }) {
   const cols = [
     { id: 'pendente', title: 'Pendente', color: C.g400, items: tarefas.pendente },
     { id: 'andamento', title: 'Em andamento', color: C.amber, items: tarefas.andamento },
+    { id: 'parado', title: 'Parado', color: C.red, items: tarefas.parado || [] },
     { id: 'concluida', title: 'Concluída', color: C.green, items: tarefas.concluida },
   ];
   return (
     <div style={{ animation: 'fadeIn 0.3s' }}>
       <PageTitle title="Tarefas" subtitle="Junho 2026" action="Gerar tarefas do mês" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14 }}>
         {cols.map(col => (
           <div key={col.id} style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.g100}`, padding: 15 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, marginBottom: 15, padding: '0 4px' }}>
@@ -415,7 +420,7 @@ function Tarefas({ tarefas, onComplete, onOpen }) {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, minHeight: 100 }}>
               {col.items.map(t => (
-                <div key={t.id} onClick={() => onOpen(t)} style={{ background: col.id === 'concluida' ? C.off : C.white, border: `1px solid ${C.g200}`, borderRadius: 10, padding: 13, borderLeft: `3px solid ${PRIO[t.prio]}`, opacity: col.id === 'concluida' ? 0.7 : 1, cursor: 'pointer', transition: 'box-shadow .2s' }}
+                <div key={t.id} onClick={() => onOpen(t)} style={{ background: col.id === 'concluida' ? C.off : C.white, border: `1px solid ${col.id === 'parado' ? C.redPale : C.g200}`, borderRadius: 10, padding: 13, borderLeft: `3px solid ${PRIO[t.prio]}`, opacity: col.id === 'concluida' ? 0.7 : 1, cursor: 'pointer', transition: 'box-shadow .2s' }}
                   onMouseEnter={e => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.08)'}
                   onMouseLeave={e => e.currentTarget.style.boxShadow = 'none'}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: C.g700, marginBottom: 8, textDecoration: col.id === 'concluida' ? 'line-through' : 'none' }}>{t.nome}</div>
@@ -429,10 +434,17 @@ function Tarefas({ tarefas, onComplete, onOpen }) {
                       <div style={{ width: 23, height: 23, borderRadius: 12, background: C.navy, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700 }}>{t.resp[0]}</div>
                     </div>
                   </div>
-                  {col.id !== 'concluida' && (
-                    <button onClick={(e) => { e.stopPropagation(); onComplete(col.id, t.id); }} style={{ marginTop: 10, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: C.emeraldPale, color: C.green, border: 'none', borderRadius: 7, padding: '7px', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', fontFamily: FB }}>
-                      {col.id === 'pendente' ? 'Iniciar' : 'Concluir'} <ArrowRight size={13} />
-                    </button>
+                  {col.id === 'pendente' && (
+                    <button onClick={(e) => { e.stopPropagation(); onComplete(col.id, t.id); }} style={btnCard(C.emeraldPale, C.green)}>Iniciar <ArrowRight size={13} /></button>
+                  )}
+                  {col.id === 'andamento' && (
+                    <div style={{ display: 'flex', gap: 7, marginTop: 10 }}>
+                      <button onClick={(e) => { e.stopPropagation(); onComplete(col.id, t.id); }} style={{ ...btnCard(C.emeraldPale, C.green), marginTop: 0, flex: 1 }}>Concluir</button>
+                      <button onClick={(e) => { e.stopPropagation(); onPause(t.id); }} style={{ ...btnCard(C.redPale, C.red), marginTop: 0, flex: 1 }}><Pause size={12} /> Parar</button>
+                    </div>
+                  )}
+                  {col.id === 'parado' && (
+                    <button onClick={(e) => { e.stopPropagation(); onResume(t.id); }} style={btnCard(C.amberPale, '#B45309')}><Play size={12} /> Retomar</button>
                   )}
                 </div>
               ))}
@@ -440,10 +452,12 @@ function Tarefas({ tarefas, onComplete, onOpen }) {
           </div>
         ))}
       </div>
-      <p style={{ fontSize: 12, color: C.g400, textAlign: 'center', marginTop: 14 }}>👆 Clique no card para abrir a ficha · use o botão para avançar de coluna</p>
+      <p style={{ fontSize: 12, color: C.g400, textAlign: 'center', marginTop: 14 }}>👆 Clique no card para abrir a ficha · use os botões para mover entre colunas · "Parado" = esperando o cliente</p>
     </div>
   );
 }
+
+const btnCard = (bg, color) => ({ marginTop: 10, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, background: bg, color, border: 'none', borderRadius: 7, padding: '7px', fontSize: 11.5, fontWeight: 700, cursor: 'pointer', fontFamily: FB });
 
 // ===== FICHA DA TAREFA (drawer lateral) com TIMESHEET =====
 function FichaTarefa({ task, col, onClose, onUpdate, onMove, onToast }) {
@@ -673,7 +687,7 @@ function Produtividade() {
   const dados = [62, 71, 58, 80, 74, 88, 67]; // tarefas concluídas por semana (exemplo)
   return (
     <div style={{ animation: 'fadeIn 0.3s' }}>
-      <PageTitle title="Produtividade" subtitle="Junho 2026 · visão geral da equipe" />
+      <PageTitle title="Relatórios" subtitle="Junho 2026 · produtividade e rentabilidade da equipe" />
       <div style={{ display: 'grid', gridTemplateColumns: '1.3fr 1fr', gap: 18 }}>
         <div style={{ background: C.white, borderRadius: 14, padding: 22, border: `1px solid ${C.g100}` }}>
           <h3 style={{ fontFamily: FD, fontSize: 16, fontWeight: 700, color: C.navy, margin: '0 0 20px' }}>Tarefas concluídas por semana</h3>
