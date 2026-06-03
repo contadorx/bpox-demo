@@ -16,21 +16,14 @@ const VIEWS = [
   {
     id: 'contador',
     label: 'App do Contador',
-    desc: 'A operação de BPO: empresas, tarefas, calendário, produtividade e planos',
+    desc: 'A operação completa: empresas, modelos, tarefas, calendário, financeiro, relatórios, equipe e assinatura',
     icon: Monitor,
     Component: AppContador,
   },
   {
-    id: 'caixa',
-    label: 'Lançar Caixa',
-    desc: 'Onde o contador informa o resumo financeiro do mês (manual, planilha ou direto do Conta Azul)',
-    icon: Wallet,
-    Component: TelaCaixa,
-  },
-  {
     id: 'portal',
     label: 'Portal do Cliente',
-    desc: 'O que o cliente final do escritório vê: financeiro, andamento e documentos',
+    desc: 'O que o cliente final do escritório vê: financeiro, andamento e documentos — com a sua marca',
     icon: Users,
     Component: PortalCliente,
   },

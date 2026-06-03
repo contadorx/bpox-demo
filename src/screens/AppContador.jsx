@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { LayoutDashboard, Building2, CheckSquare, Calendar as CalendarIcon, Settings, Plus, Search, Bell, Clock, AlertTriangle, CheckCircle2, Circle, TrendingUp, Zap, ArrowLeft, Mail, Phone, FileText, BarChart3, Smartphone, Monitor, Tag, ChevronRight, Star, X, Play, Pause, Timer, User, ArrowRight } from 'lucide-react';
+import { LayoutDashboard, Building2, CheckSquare, Calendar as CalendarIcon, Settings, Plus, Search, Bell, Clock, AlertTriangle, CheckCircle2, Circle, TrendingUp, Zap, ArrowLeft, Mail, Phone, FileText, BarChart3, Smartphone, Monitor, Tag, ChevronRight, Star, X, Play, Pause, Timer, User, ArrowRight, ClipboardList, Wallet, Users, CreditCard, Sparkles, UserCog } from 'lucide-react';
+import CaixaContador from './TelaCaixa.jsx';
 
 // BPOx — Protótipo navegável v2 (expandido)
 // Paleta: Navy #1B2A4A + Esmeralda #2ECC71 + Verde #27AE60
@@ -154,11 +155,30 @@ function DesktopApp() {
   const nav = [
     { id: 'hoje', label: 'Hoje', icon: LayoutDashboard },
     { id: 'empresas', label: 'Empresas', icon: Building2 },
+    { id: 'modelos', label: 'Modelos', icon: ClipboardList },
     { id: 'tarefas', label: 'Tarefas', icon: CheckSquare },
     { id: 'calendario', label: 'Calendário', icon: CalendarIcon },
     { id: 'relatorios', label: 'Relatórios', icon: BarChart3 },
-    { id: 'planos', label: 'Planos', icon: Star },
+    { id: 'financeiro', label: 'Financeiro', icon: Wallet },
+    { id: 'equipe', label: 'Equipe', icon: Users },
+    { id: 'assinatura', label: 'Assinatura', icon: CreditCard },
   ];
+  const navFooter = [
+    { id: 'novidades', label: 'Novidades', icon: Sparkles },
+    { id: 'conta', label: 'Minha conta', icon: UserCog },
+  ];
+  const renderNavBtn = (it) => {
+    const active = screen === it.id; const Icon = it.icon;
+    return (
+      <button key={it.id} onClick={() => { setScreen(it.id); setSelEmp(null); }} style={{
+        width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '10px 22px',
+        background: active ? 'rgba(46,204,113,0.12)' : 'transparent', border: 'none',
+        borderLeft: active ? `3px solid ${C.emerald}` : '3px solid transparent',
+        color: active ? C.white : 'rgba(255,255,255,0.55)', cursor: 'pointer',
+        fontSize: 13.5, fontWeight: active ? 700 : 500, fontFamily: FB,
+      }}><Icon size={17} /> {it.label}</button>
+    );
+  };
 
   return (
     <div style={{ display: 'flex', minHeight: 720, position: 'relative' }}>
@@ -171,18 +191,9 @@ function DesktopApp() {
           </div>
         </div>
         <nav>
-          {nav.map(it => {
-            const active = screen === it.id; const Icon = it.icon;
-            return (
-              <button key={it.id} onClick={() => { setScreen(it.id); setSelEmp(null); }} style={{
-                width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '11px 22px',
-                background: active ? 'rgba(46,204,113,0.12)' : 'transparent', border: 'none',
-                borderLeft: active ? `3px solid ${C.emerald}` : '3px solid transparent',
-                color: active ? C.white : 'rgba(255,255,255,0.55)', cursor: 'pointer',
-                fontSize: 13.5, fontWeight: active ? 700 : 500, fontFamily: FB,
-              }}><Icon size={17} /> {it.label}</button>
-            );
-          })}
+          {nav.map(it => renderNavBtn(it))}
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', margin: '10px 22px' }} />
+          {navFooter.map(it => renderNavBtn(it))}
         </nav>
         <div style={{ position: 'absolute', bottom: 20, left: 18, width: 184, background: 'rgba(255,255,255,0.05)', borderRadius: 10, padding: 13, border: '1px solid rgba(46,204,113,0.2)' }}>
           <div style={{ fontSize: 10, color: C.emerald, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase' }}>Plano Pro</div>
@@ -214,10 +225,15 @@ function DesktopApp() {
             : <>
               {screen === 'hoje' && <Hoje onComplete={completeTask} tarefas={tarefas} />}
               {screen === 'empresas' && <Empresas onSelect={setSelEmp} />}
+              {screen === 'modelos' && <Modelos />}
               {screen === 'tarefas' && <Tarefas tarefas={tarefas} onComplete={completeTask} onOpen={abrirFicha} onPause={pauseTask} onResume={resumeTask} />}
               {screen === 'calendario' && <Calendario />}
               {screen === 'relatorios' && <Produtividade />}
-              {screen === 'planos' && <Planos />}
+              {screen === 'financeiro' && <CaixaContador />}
+              {screen === 'equipe' && <Equipe />}
+              {screen === 'assinatura' && <Planos />}
+              {screen === 'novidades' && <Novidades />}
+              {screen === 'conta' && <MinhaConta />}
             </>}
         </main>
       </div>
@@ -727,7 +743,7 @@ function Planos() {
   const economia = (playbpo - 197) * 12;
   return (
     <div style={{ animation: 'fadeIn 0.3s' }}>
-      <PageTitle title="Planos" subtitle="Preço fixo. Empresas ilimitadas. Cresça sem medo da conta." />
+      <PageTitle title="Assinatura" subtitle="Preço fixo. Empresas ilimitadas. Cresça sem medo da conta." />
       {/* Calculadora de economia */}
       <div style={{ background: `linear-gradient(135deg, ${C.navy}, ${C.navyDeep})`, borderRadius: 16, padding: 26, marginBottom: 24 }}>
         <h3 style={{ fontFamily: FD, fontSize: 19, fontWeight: 700, color: '#fff', margin: '0 0 6px' }}>Quanto você economiza?</h3>
@@ -928,4 +944,116 @@ function OStep({ t, s, children }) {
 }
 function OField({ l, p, up }) {
   return <div style={{ marginBottom: 14, flex: 1 }}><label style={{ fontSize: 11.5, fontWeight: 700, color: C.g500, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block', marginBottom: 6 }}>{l}</label><div style={{ border: `1.5px solid ${C.g200}`, borderRadius: 9, padding: '11px 13px', fontSize: 13.5, color: C.g400, background: up ? C.off : C.white, cursor: up ? 'pointer' : 'text', textAlign: up ? 'center' : 'left' }}>{p}</div></div>;
+}
+
+// ===== MODELOS DE ROTINA =====
+function Modelos() {
+  const modelos = [
+    { nome: 'BPO Essencial', cor: C.g400, itens: ['Baixar extratos', 'Classificar lançamentos', 'Conciliação bancária', 'Relatório mensal'] },
+    { nome: 'BPO Completo', cor: C.emerald, itens: ['Tudo do Essencial', 'Contas a pagar e a receber', 'Fluxo de caixa', 'DRE gerencial', 'Reunião mensal'] },
+    { nome: 'BPO Premium', cor: C.gold, itens: ['Tudo do Completo', 'Orçado x realizado', 'Indicadores (KPIs)', 'Projeções', 'Reunião quinzenal'] },
+  ];
+  return (
+    <div style={{ animation: 'fadeIn 0.3s' }}>
+      <PageTitle title="Modelos de rotina" subtitle="Crie uma rotina-modelo e aplique a vários clientes de uma vez" action="Novo modelo" />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+        {modelos.map(m => (
+          <div key={m.nome} style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.g200}`, padding: 22 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <span style={{ width: 10, height: 10, borderRadius: 5, background: m.cor }} />
+              <span style={{ fontFamily: FD, fontSize: 17, fontWeight: 700, color: C.navy }}>{m.nome}</span>
+            </div>
+            {m.itens.map(it => (
+              <div key={it} style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '6px 0', fontSize: 13, color: C.g700 }}>
+                <CheckCircle2 size={15} color={C.emerald} /> {it}
+              </div>
+            ))}
+            <button style={{ marginTop: 14, width: '100%', padding: 10, borderRadius: 9, border: `1.5px solid ${C.g200}`, background: C.white, color: C.navy, fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: FB }}>Aplicar a clientes</button>
+          </div>
+        ))}
+      </div>
+      <p style={{ fontSize: 12.5, color: C.g500, marginTop: 16 }}>Os modelos viram a rotina mensal de cada cliente — e as tarefas do mês nascem deles com um clique.</p>
+    </div>
+  );
+}
+
+// ===== EQUIPE =====
+function Equipe() {
+  const membros = [
+    { nome: 'Leandro Oliveira', email: 'leandro@escritorio.com.br', papel: 'Dono' },
+    { nome: 'Maria Santos', email: 'maria@escritorio.com.br', papel: 'Administrador' },
+    { nome: 'João Pereira', email: 'joao@escritorio.com.br', papel: 'Membro' },
+    { nome: 'Pedro Alves', email: 'pedro@escritorio.com.br', papel: 'Membro' },
+  ];
+  return (
+    <div style={{ animation: 'fadeIn 0.3s' }}>
+      <PageTitle title="Equipe" subtitle="Quem trabalha no seu escritório · 4 de 5 usuários (Plano Pro)" action="Convidar membro" />
+      <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.g200}`, overflow: 'hidden' }}>
+        {membros.map((m, i) => (
+          <div key={m.email} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderBottom: i < membros.length - 1 ? `1px solid ${C.g100}` : 'none' }}>
+            <div style={{ width: 38, height: 38, borderRadius: 10, background: C.navy, color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700 }}>{m.nome[0]}</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.navy }}>{m.nome}</div>
+              <div style={{ fontSize: 12.5, color: C.g500 }}>{m.email}</div>
+            </div>
+            <span style={{ fontSize: 11.5, fontWeight: 700, color: m.papel === 'Membro' ? C.g500 : C.green, background: m.papel === 'Membro' ? C.off : C.emeraldPale, padding: '4px 12px', borderRadius: 20 }}>{m.papel}</span>
+          </div>
+        ))}
+      </div>
+      <p style={{ fontSize: 12.5, color: C.g500, marginTop: 14 }}>Cada pessoa recebe acesso conforme o papel. O número de usuários depende do plano.</p>
+    </div>
+  );
+}
+
+// ===== NOVIDADES (changelog) =====
+function Novidades() {
+  const itens = [
+    { tipo: 'novidade', titulo: 'Instale o BPOx no celular', desc: 'Agora dá pra instalar como app: tela cheia, sem a barra do navegador, com ícone na tela inicial.', data: '03/06/2026' },
+    { tipo: 'novidade', titulo: 'Integração Conta Azul (chegando)', desc: 'Importe recebimentos e pagamentos do mês direto do Conta Azul, sem digitar.', data: '03/06/2026' },
+    { tipo: 'correcao', titulo: 'Relatórios mais precisos', desc: 'Os relatórios passam a considerar apenas os dados do seu escritório.', data: '03/06/2026' },
+    { tipo: 'melhoria', titulo: 'Plano anual com 2 meses grátis', desc: 'Pague uma vez no ano e economize 17%.', data: '01/06/2026' },
+  ];
+  const cor = { novidade: [C.emerald, C.emeraldPale], melhoria: [C.gold, '#FBF5EA'], correcao: [C.amber, C.amberPale] };
+  const rotulo = { novidade: 'Novidade', melhoria: 'Melhoria', correcao: 'Correção' };
+  return (
+    <div style={{ animation: 'fadeIn 0.3s' }}>
+      <PageTitle title="Novidades" subtitle="O que muda no BPOx a cada atualização" />
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {itens.map((n, i) => (
+          <div key={i} style={{ background: C.white, borderRadius: 12, border: `1px solid ${C.g200}`, padding: 18 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 10.5, fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5, color: cor[n.tipo][0], background: cor[n.tipo][1], padding: '3px 10px', borderRadius: 20 }}>{rotulo[n.tipo]}</span>
+              <span style={{ fontSize: 15, fontWeight: 700, color: C.navy }}>{n.titulo}</span>
+              <span style={{ marginLeft: 'auto', fontSize: 12, color: C.g400 }}>{n.data}</span>
+            </div>
+            <p style={{ fontSize: 13.5, color: C.g700, margin: 0, lineHeight: 1.5 }}>{n.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ===== MINHA CONTA =====
+function MinhaConta() {
+  const linha = (label, valor) => (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 0', borderBottom: `1px solid ${C.g100}` }}>
+      <span style={{ fontSize: 13, color: C.g500 }}>{label}</span>
+      <span style={{ fontSize: 13.5, fontWeight: 600, color: C.navy }}>{valor}</span>
+    </div>
+  );
+  const card = (titulo, children) => (
+    <div style={{ background: C.white, borderRadius: 14, border: `1px solid ${C.g200}`, padding: 22, marginBottom: 16 }}>
+      <div style={{ fontFamily: FD, fontSize: 16, fontWeight: 700, color: C.navy, marginBottom: 6 }}>{titulo}</div>
+      {children}
+    </div>
+  );
+  return (
+    <div style={{ animation: 'fadeIn 0.3s', maxWidth: 640 }}>
+      <PageTitle title="Minha conta" subtitle="Seus dados e os do escritório · a logo aparece no portal e nos relatórios dos clientes" />
+      {card('Seus dados', <>{linha('Nome', 'Leandro Oliveira')}{linha('E-mail', 'leandro@escritorio.com.br')}{linha('Papel', 'Dono')}</>)}
+      {card('Escritório', <>{linha('Nome', 'Contabilidade Oliveira')}{linha('Plano', 'Pro · R$ 197/mês')}{linha('Logo no portal', 'contabilidade-oliveira.png')}</>)}
+      {card('Segurança', <button style={{ padding: '10px 16px', borderRadius: 9, border: `1.5px solid ${C.g200}`, background: C.white, color: C.navy, fontWeight: 700, fontSize: 13, cursor: 'pointer', fontFamily: FB }}>Trocar senha</button>)}
+    </div>
+  );
 }
