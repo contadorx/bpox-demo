@@ -23,7 +23,7 @@ const VIEWS = [
   {
     id: 'caixa',
     label: 'Lançar Caixa',
-    desc: 'Onde o contador informa o resumo financeiro do mês (manual ou importando planilha)',
+    desc: 'Onde o contador informa o resumo financeiro do mês (manual, planilha ou direto do Conta Azul)',
     icon: Wallet,
     Component: TelaCaixa,
   },

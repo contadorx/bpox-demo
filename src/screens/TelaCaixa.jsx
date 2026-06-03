@@ -9,6 +9,7 @@ const C = {
   emeraldPale: '#EAFAF1', gold: '#C4983E', white: '#FFFFFF', off: '#F7F9FB',
   g100: '#EEF1F4', g200: '#E2E8F0', g400: '#94A3B8', g500: '#64748B', g700: '#334155',
   amber: '#F59E0B', amberPale: '#FEF3C7', red: '#EF4444', redPale: '#FEE2E2',
+  ca: '#1E9BF0', caPale: '#E6F4FE',
 };
 const FD = "'Playfair Display', Georgia, serif";
 const FB = "'Source Sans 3', -apple-system, sans-serif";
@@ -36,6 +37,7 @@ export default function CaixaContador() {
   const [showPreview, setShowPreview] = useState(false);
   const [showImport, setShowImport] = useState(false);
   const [imported, setImported] = useState(false);
+  const [importedCA, setImportedCA] = useState(false);
 
   const totalDespesas = despesas.reduce((s, d) => s + parseNum(d.valor), 0);
   const entradasN = parseNum(entradas);
@@ -62,6 +64,22 @@ export default function CaixaContador() {
     setShowImport(false);
     setImported(true);
     setTimeout(() => setImported(false), 3000);
+  };
+
+  // Simula trazer o financeiro do mês direto do Conta Azul (recebimentos + pagamentos)
+  const handleImportCA = () => {
+    setSaldoAnterior('23030');
+    setEntradas('94200');
+    setDespesas([
+      { cat: 'Fornecedores', valor: '30100' },
+      { cat: 'Folha de pagamento', valor: '18200' },
+      { cat: 'Impostos', valor: '9050' },
+      { cat: 'Aluguel', valor: '4500' },
+      { cat: 'Tarifas bancárias', valor: '780' },
+      { cat: 'Outros', valor: '2900' },
+    ]);
+    setImportedCA(true);
+    setTimeout(() => setImportedCA(false), 3500);
   };
 
   return (
@@ -91,6 +109,21 @@ export default function CaixaContador() {
             </p>
           </div>
 
+          {/* Banner de importação Conta Azul (integração — destaque CON26) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: `linear-gradient(135deg, #0E2A44, ${C.navyDeep})`, border: `1px solid rgba(30,155,240,0.45)`, borderRadius: 12, padding: '16px 20px', marginBottom: 14 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 10, background: 'rgba(30,155,240,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: C.ca, fontWeight: 800, fontSize: 15 }}>CA</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                Importar do Conta Azul
+                <span style={{ fontSize: 10, fontWeight: 800, letterSpacing: 0.5, textTransform: 'uppercase', color: '#fff', background: C.ca, borderRadius: 20, padding: '2px 8px' }}>Integração</span>
+              </div>
+              <div style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.6)' }}>O cliente conectou a conta dele. Traga recebimentos e pagamentos do mês sem digitar.</div>
+            </div>
+            <button onClick={handleImportCA} style={{ display: 'flex', alignItems: 'center', gap: 8, background: C.ca, color: '#fff', border: 'none', borderRadius: 9, padding: '11px 18px', fontSize: 13.5, fontWeight: 700, cursor: 'pointer', fontFamily: FB, flexShrink: 0 }}>
+              <Download size={17} /> Importar do Conta Azul
+            </button>
+          </div>
+
           {/* Banner de importação por planilha */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: C.navy, borderRadius: 12, padding: '16px 20px', marginBottom: 26 }}>
             <div style={{ width: 42, height: 42, borderRadius: 10, background: 'rgba(46,204,113,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -109,6 +142,13 @@ export default function CaixaContador() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: C.emeraldPale, border: `1px solid ${C.emerald}`, borderRadius: 10, padding: '12px 16px', marginBottom: 22, animation: 'fadeIn 0.3s' }}>
               <CheckCircle2 size={18} color={C.green} />
               <span style={{ fontSize: 13.5, color: C.g700, fontWeight: 600 }}>Planilha importada! 47 lançamentos lidos e agrupados. Confira os valores abaixo antes de publicar.</span>
+            </div>
+          )}
+
+          {importedCA && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9, background: C.caPale, border: `1px solid ${C.ca}`, borderRadius: 10, padding: '12px 16px', marginBottom: 22, animation: 'fadeIn 0.3s' }}>
+              <CheckCircle2 size={18} color={C.ca} />
+              <span style={{ fontSize: 13.5, color: C.g700, fontWeight: 600 }}>Importado do Conta Azul — recebimentos e pagamentos de junho organizados por categoria. Confira e publique.</span>
             </div>
           )}
 
